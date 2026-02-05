@@ -1,0 +1,33 @@
+<%- include('partials/header') %>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4>👮‍♂️ Crear Nuevo Administrador</h4>
+            </div>
+            <div class="card-body">
+                <form action="/admin/crear-admin" method="POST">
+                    <div class="mb-3">
+                        <label>Nombre del Encargado:</label>
+                        <input type="text" name="nombre" class="form-control" placeholder="Ej: Maria Recepción" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Usuario (para login):</label>
+                        <input type="text" name="usuario" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Contraseña:</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">Crear Usuario</button>
+                        <a href="/admin" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

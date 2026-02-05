@@ -1,0 +1,116 @@
+<%- include('partials/header') %>
+
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="card shadow-lg">
+            <div class="card-header bg-dark text-white">
+                <h4><i class="fas fa-user-plus"></i> Registrar Nuevo Socio</h4>
+            </div>
+            <div class="card-body">
+                <form action="/registrar" method="POST" id="formRegistro">
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Cédula (Real)</label>
+                            <input type="text" id="txtCedula" name="cedula" class="form-control" placeholder="Ingrese cédula primero..." required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" name="telefono" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Nombres</label>
+                            <input type="text" name="nombres" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Apellidos</label>
+                            <input type="text" name="apellidos" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Tipo de Plan</label>
+                            <select name="plan" class="form-select">
+                                <option value="Mensual">Mensual ($35.00)</option>
+                                <option value="Anual">Anual ($300.00)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="card bg-light border-2 mb-4">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-muted mb-3">Captura de Huella Digital</h5>
+                            
+                            <div class="mb-3">
+                                <i id="iconHuella" class="fas fa-fingerprint fa-5x text-secondary"></i>
+                            </div>
+
+                            <input type="hidden" name="huella" id="inputHuella">
+                            
+                            <button type="button" class="btn btn-outline-primary" onclick="capturarHuella()" id="btnCapturar">
+                                <i class="fas fa-hand-pointer"></i> Activar Sensor y Escanear
+                            </button>
+
+                            <p id="msgHuella" class="mt-2 text-muted small">Estado: Esperando dedo...</p>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg" id="btnGuardar" disabled>
+                            💾 Guardar Registro
+                        </button>
+                        <a href="/" class="btn btn-secondary">Cancelar</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function capturarHuella() {
+        const cedula = document.getElementById('txtCedula').value;
+        
+        // Validar que haya puesto la cédula primero (para generar el código único)
+        if(cedula.length < 3) {
+            alert("⚠️ Por favor, ingrese la Cédula primero para vincular la huella.");
+            document.getElementById('txtCedula').focus();
+            return;
+        }
+
+        const icono = document.getElementById('iconHuella');
+        const msg = document.getElementById('msgHuella');
+        const btn = document.getElementById('btnCapturar');
+        
+        // 1. INICIO ANIMACIÓN
+        btn.disabled = true;
+        icono.className = "fas fa-fingerprint fa-5x text-primary fa-pulse"; // Efecto latido
+        msg.innerText = "Estado: ESCANEANDO PUNTOS BIOMÉTRICOS...";
+        msg.className = "mt-2 text-primary fw-bold";
+
+        // 2. ESPERAR 2 SEGUNDOS (Simulando hardware)
+        setTimeout(() => {
+            // 3. ÉXITO
+            icono.className = "fas fa-check-circle fa-5x text-success animate__animated animate__bounceIn";
+            msg.innerText = "Estado: HUELLA CAPTURADA Y CODIFICADA";
+            msg.className = "mt-2 text-success fw-bold";
+            
+            // Generar un código "Biométrico" falso
+            const hashBiometrico = "BIO-HASH-" + cedula + "-" + Math.floor(Math.random() * 10000);
+            document.getElementById('inputHuella').value = hashBiometrico;
+            
+            // Habilitar botón de guardar
+            document.getElementById('btnGuardar').disabled = false;
+            
+        }, 2000);
+    }
+</script>
+
+<%- include('partials/footer') %>

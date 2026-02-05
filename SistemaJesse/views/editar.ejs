@@ -1,0 +1,49 @@
+<%- include('partials/header') %>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-warning">
+                <h4>✏️ Editar Socio: <%= socio.nombres %> <%= socio.apellidos %></h4>
+            </div>
+            <div class="card-body">
+                <form action="/admin/editar/<%= socio._id %>" method="POST">
+                    
+                    <div class="mb-3">
+                        <label>Nombres:</label>
+                        <input type="text" name="nombres" value="<%= socio.nombres %>" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Apellidos:</label>
+                        <input type="text" name="apellidos" value="<%= socio.apellidos %>" class="form-control">
+                    </div>
+                    
+                    <hr>
+                    <h5>Membresía</h5>
+                    <div class="mb-3">
+                        <label>Plan Actual:</label>
+                        <select name="plan" class="form-select">
+                            <option value="Mensual" <%= socio.membresia.tipo == 'Mensual' ? 'selected' : '' %>>Mensual</option>
+                            <option value="Anual" <%= socio.membresia.tipo == 'Anual' ? 'selected' : '' %>>Anual</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Fecha de Vencimiento:</label>
+                        <input type="date" name="fechaFin" 
+                               value="<%= new Date(socio.membresia.fechaFin).toISOString().split('T')[0] %>" 
+                               class="form-control">
+                        <small class="text-muted">Si quieres quitarle la membresía, pon una fecha pasada (ej. 2020).</small>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        <a href="/admin" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,73 @@
+<%- include('partials/header') %>
+
+<div class="row mb-5">
+    <div class="col-md-6 offset-md-3">
+        <div class="card text-center shadow-lg border-0">
+            <div class="card-body p-5">
+                <h2 class="card-title text-uppercase mb-4">🔐 Control de Acceso</h2>
+                
+                <% if (mensaje) { %>
+                    <div class="alert alert-<%= tipoAlerta %> display-6 fw-bold animate__animated animate__pulse">
+                        <%= mensaje %>
+                    </div>
+                <% } else { %>
+                    <p class="text-muted">Escanee la huella o ingrese la cédula para validar.</p>
+                <% } %>
+
+                <form action="/acceso" method="POST" class="mt-4">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-dark text-white"><i class="fas fa-fingerprint"></i></span>
+                        <input type="text" name="cedula" class="form-control" placeholder="Ingrese Cédula del Socio..." autofocus autocomplete="off">
+                        <button class="btn btn-primary" type="submit">VALIDAR</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">📋 Socios Registrados en MongoDB</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Cédula</th>
+                        <th>Socio</th>
+                        <th>Plan</th>
+                        <th>Vencimiento</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (socios.length > 0) { %>
+                        <% socios.forEach(socio => { %>
+                            <tr>
+                                <td><%= socio.cedula %></td>
+                                <td><%= socio.nombres %> <%= socio.apellidos %></td>
+                                <td><span class="badge bg-info text-dark"><%= socio.membresia.tipo %></span></td>
+                                <td><%= new Date(socio.membresia.fechaFin).toLocaleDateString() %></td>
+                                <td>
+                                    <% if (new Date(socio.membresia.fechaFin) >= new Date()) { %>
+                                        <span class="badge bg-success">ACTIVO</span>
+                                    <% } else { %>
+                                        <span class="badge bg-danger">VENCIDO</span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No hay socios registrados aún.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

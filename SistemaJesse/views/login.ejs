@@ -1,0 +1,31 @@
+<%- include('partials/header') %>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white text-center">
+                <h4>👮‍♂️ Acceso Administrativo</h4>
+            </div>
+            <div class="card-body">
+                <form action="/login" method="POST">
+                    <div class="mb-3">
+                        <label>Usuario:</label>
+                        <input type="text" name="user" class="form-control" placeholder="admin" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Contraseña:</label>
+                        <input type="password" name="pass" class="form-control" placeholder="****" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Entrar</button>
+                    </div>
+                </form>
+                <% if (error) { %>
+                    <div class="alert alert-danger mt-3 text-center"><%= error %></div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>
