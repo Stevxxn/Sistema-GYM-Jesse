@@ -68,18 +68,24 @@ app.get('/', async (req, res) => {
     }
 });
 
-// 2. PANTALLA DE REGISTRO
+// 2. PANTALLA DE REGISTRO (🔒 AHORA PROTEGIDA)
 app.get('/registrar', (req, res) => {
+    // Si NO es admin, lo mandamos al login
+    if (!req.session.esAdmin) return res.redirect('/login');
+    
     res.render('registrar');
 });
 
-// 3. GUARDAR NUEVO SOCIO (POST)
+// 3. GUARDAR NUEVO SOCIO (🔒 AHORA PROTEGIDA)
 app.post('/registrar', async (req, res) => {
+    // Doble seguridad: Si intenta enviar datos sin ser admin, ¡fuera!
+    if (!req.session.esAdmin) return res.redirect('/login');
+
     try {
         // Calculamos fecha de vencimiento (30 días por defecto)
         const fechaInicio = new Date();
         const fechaFin = new Date();
-        fechaFin.setDate(fechaFin.getDate() + 30); // Sumar 30 días
+        fechaFin.setDate(fechaFin.getDate() + 30); 
 
         const nuevoSocio = new Socio({
             cedula: req.body.cedula,
@@ -97,7 +103,7 @@ app.post('/registrar', async (req, res) => {
 
         await nuevoSocio.save();
         console.log('Socio guardado: ' + req.body.nombres);
-        res.redirect('/'); // Volver al inicio
+        res.redirect('/'); 
     } catch (error) {
         console.log(error);
         res.send("Error al guardar: " + error.message);
@@ -169,11 +175,14 @@ app.post('/login', async (req, res) => {
 
 // 3. Panel de Administración (PROTEGIDO)
 app.get('/admin', async (req, res) => {
-    // Middleware casero: Si no es admin, fuera de aquí
     if (!req.session.esAdmin) return res.redirect('/login');
 
+    // Hacemos dos consultas a la vez: Socios y Usuarios (Admins)
     const socios = await Socio.find();
-    res.render('admin', { socios: socios });
+    const admins = await Usuario.find(); 
+
+    // Enviamos AMBAS listas a la vista
+    res.render('admin', { socios: socios, admins: admins });
 });
 
 // 4. Mostrar formulario de Edición
@@ -231,6 +240,39 @@ app.post('/admin/crear-admin', async (req, res) => {
     }
 });
 
+// --- REPORTE DE ASISTENCIAS ---
+app.get('/admin/reportes', async (req, res) => {
+    if (!req.session.esAdmin) return res.redirect('/login');
+
+    try {
+        const socios = await Socio.find();
+        let historialGlobal = [];
+
+        // 1. Sacar las asistencias de cada socio y ponerlas en una sola lista
+        socios.forEach(socio => {
+            if (socio.asistencias && socio.asistencias.length > 0) {
+                socio.asistencias.forEach(asistencia => {
+                    historialGlobal.push({
+                        fecha: asistencia.fecha,
+                        estado: asistencia.estado,
+                        cedula: socio.cedula,
+                        socio: socio.nombres + ' ' + socio.apellidos
+                    });
+                });
+            }
+        });
+
+        // 2. Ordenar por fecha (El más reciente primero)
+        historialGlobal.sort((a, b) => b.fecha - a.fecha);
+
+        res.render('reportes', { historial: historialGlobal });
+
+    } catch (error) {
+        console.log(error);
+        res.send("Error generando reporte");
+    }
+});
+
 // 7. Cerrar Sesión
 app.get('/logout', (req, res) => {
     req.session.destroy();
@@ -239,12 +281,30 @@ app.get('/logout', (req, res) => {
 
 // --- ENCENDER SERVIDOR ---
 const port = 3000;
-const host = '0.0.0.0'; // Esto permite conexiones externas
+const host = '0.0.0.0'; // Importante: '0.0.0.0' permite que te vean desde afuera
+const os = require('os'); // Importamos el módulo del sistema
+
+// Función para buscar tu IP real en la WiFi/Ethernet
+const getIpAddress = () => {
+    const interfaces = os.networkInterfaces();
+    for (const devName in interfaces) {
+        const iface = interfaces[devName];
+        for (const alias of iface) {
+            // Buscamos una dirección IPv4 que NO sea interna (localhost)
+            if (alias.family === 'IPv4' && !alias.internal) {
+                return alias.address;
+            }
+        }
+    }
+    return 'localhost'; // Si no encuentra nada, devuelve localhost
+};
 
 app.listen(port, host, () => {
+    const ip = getIpAddress(); // Obtenemos la IP automáticamente
+    
     console.log('------------------------------------------------');
     console.log(`🚀 SERVIDOR LISTO PARA LA RED`);
     console.log(`📡 Acceso Local:   http://localhost:${port}`);
-    //console.log(`🌍 Acceso Red:     http://TU_IP_DE_LA_COMPU:${port}`);
+    console.log(`🌍 Acceso Red:     http://172.17.208.183:${port}`); 
     console.log('------------------------------------------------');
 });

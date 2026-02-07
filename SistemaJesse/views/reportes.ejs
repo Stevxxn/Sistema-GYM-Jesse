@@ -1,0 +1,69 @@
+<%- include('partials/header') %>
+
+<div class="container mt-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4 no-imprimir">
+        <h2>📄 Reporte General de Asistencias</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fas fa-file-pdf"></i> Descargar / Imprimir PDF
+            </button>
+            <a href="/admin" class="btn btn-secondary">Volver</a>
+        </div>
+    </div>
+
+    <div class="si-imprimir text-center mb-4" style="display: none;">
+        <h1>GIMNASIO JESSE</h1>
+        <h3>Reporte Oficial de Ingresos</h3>
+        <p>Generado el: <%= new Date().toLocaleDateString() %></p>
+        <hr>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Fecha y Hora</th>
+                        <th>Cédula</th>
+                        <th>Socio</th>
+                        <th>Estado Acceso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (historial.length > 0) { %>
+                        <% historial.forEach(item => { %>
+                            <tr>
+                                <td><%= item.fecha.toLocaleString() %></td>
+                                <td><%= item.cedula %></td>
+                                <td><%= item.socio %></td>
+                                <td>
+                                    <% if(item.estado === 'Permitido') { %>
+                                        <span class="badge bg-success text-white"><%= item.estado %></span>
+                                    <% } else { %>
+                                        <span class="badge bg-danger text-white"><%= item.estado %></span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="4" class="text-center">No hay registros de asistencia aún.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .no-imprimir { display: none !important; } /* Oculta botones y menús */
+        .si-imprimir { display: block !important; } /* Muestra el título formal */
+        .navbar, footer { display: none !important; } /* Oculta header y footer del sitio */
+        .card { border: none !important; box-shadow: none !important; }
+    }
+</style>
+
+<%- include('partials/footer') %>
